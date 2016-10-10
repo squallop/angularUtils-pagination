@@ -326,10 +326,27 @@
                 }
             });
 
-            scope.setCurrent = function(num) {
-                if (paginationService.isRegistered(paginationId) && isValidPageNumber(num)) {
-                    num = parseInt(num, 10);
-                    paginationService.setCurrentPage(paginationId, num);
+            scope.setCurrent = function (num, index) {
+                if (paginationService.isRegistered(paginationId)) {
+                    if (num === '...') {
+                        /* Ellipsis entry */
+                        // setCurrent is being called on an ellipsis, so assume that it's being used as a button and we need to work out where it should go.
+                        if (index === 1) { // Opening Ellipsis
+                            // Get the first page after the opening ellipsis to find which page comes before it. For example, given the page set 1 ... 15, 16, 17, selecting the opening ellipsis,
+                            // would result in page 14 (scope.pages[index + 1] = 15 - 1 = 14) becoming selected.
+                            num = scope.pages[index + 1] - 1; // Verbose for clarity.
+                        }
+                        else { // Closing Ellipsis
+                            // Get the last page before the closing ellipsis to find which page should come next.
+                            num = scope.pages[index - 1] + 1;
+                        }
+                    }
+
+                    if (isValidPageNumber(num)) {
+                        num = parseInt(num, 10);
+
+                        paginationService.setCurrentPage(paginationId, num);
+                    }
                 }
             };
 
